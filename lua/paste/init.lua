@@ -1,12 +1,19 @@
 local M = {}
 
+M.get_script_dir = function()
+	local lua_path = debug.getinfo(1, "S").source:sub(2)
+	return vim.fn.fnamemodify(lua_path, ":p:h")
+end
+
 -- Define the function to call the Python script
 M.save_clipboard_image = function()
+	local lua_path = M.get_script_dir()
+	local script_path = lua_path .. "../../scripts/paste.py"
 	-- Prompt the user for an output path
 	local output_path = vim.fn.input("Enter output path for image: ", "output.png")
 
 	-- Execute the Python script using the output path provided
-	local cmd = string.format("python3 ../../scripts/paste.py %s", output_path)
+	local cmd = string.format("python3 %s %s", script_path, output_path)
 	local result = vim.fn.system(cmd)
 
 	-- Notify the user of the result
