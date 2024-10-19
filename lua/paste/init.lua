@@ -17,7 +17,14 @@ M.save_clipboard_image = function()
 	end
 end
 
--- Define the command to call the function
-vim.api.nvim_create_user_command("SaveClipboardImage", M.save_clipboard_image, {})
+---Setup the keymap and command for saving clipboard images
+---@param _ table
+function M.setup(_)
+	-- Define the command to call the function
+	vim.api.nvim_create_user_command("SaveClipboardImage", M.save_clipboard_image, {})
+
+	-- Set the keymap for the command
+	vim.api.nvim_set_keymap("n", "<leader>ci", ":SaveClipboardImage<CR>", { noremap = true, silent = true })
+end
 
 return M
