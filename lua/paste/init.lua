@@ -35,7 +35,7 @@ M.save_clipboard_image = function()
 	local lua_abs_dir = vim.fn.fnamemodify(lua_dir, ":p:h")
 
 	-- Ensure correct concatenation of the path
-	local script_path = lua_abs_dir .. "/../../scripts/paste.py"
+	local script_path = vim.fn.fnamemodify(lua_abs_dir .. "/../../scripts/paste.py", ":p")
 
 	-- Execute the Python script using the constructed script path and output path
 	local cmd = string.format("python3 %s %s", script_path, output_path)
