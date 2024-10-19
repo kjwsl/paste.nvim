@@ -10,28 +10,34 @@ M.is_absolute_path = function(path)
 	return vim.fn.isdirectory(vim.fn.fnamemodify(path, ":p")) == 1
 end
 
-M.get_script_dir = function()
-	local lua_path = debug.getinfo(1, "S").source:sub(2)
-	return vim.fn.fnamemodify(lua_path, ":p:h")
-end
-
--- Define the function to call the Python script
 M.save_clipboard_image = function()
+	-- Get the current buffer's path (absolute)
 	local buffer_path = M.get_current_buffer_path()
-	local buffer_dir = vim.fn.fnamemodify(buffer_path, ":p:h")
-	local lua_path = M.get_script_dir()
-	local script_path = lua_path .. "../../scripts/paste.py"
-	-- Prompt the user for an output path
-	local user_output_path = vim.fn.input("Enter output path for image: ", "output.png")
 
+	-- Get the directory of the current buffer
+	local buffer_dir = vim.fn.fnamemodify(buffer_path, ":p:h")
+
+	-- Prompt the user for an output path
+	local user_output_path = vim.fn.input("Enter output path for image (relative or absolute): ", "output.png")
+
+	-- Determine if the provided path is absolute or relative
 	local output_path = ""
 	if M.is_absolute_path(user_output_path) then
+		-- If it's an absolute path, use it directly
 		output_path = user_output_path
 	else
+		-- If it's a relative path, resolve it relative to the current buffer's directory
 		output_path = buffer_dir .. "/" .. user_output_path
 	end
 
-	-- Execute the Python script using the output path provided
+	-- Construct the path to the Python script (relative to this Lua file)
+	local lua_dir = debug.getinfo(1, "S").source:sub(2)
+	local lua_abs_dir = vim.fn.fnamemodify(lua_dir, ":p:h")
+
+	-- Ensure correct concatenation of the path
+	local script_path = lua_abs_dir .. "/../../scripts/paste.py"
+
+	-- Execute the Python script using the constructed script path and output path
 	local cmd = string.format("python3 %s %s", script_path, output_path)
 	local result = vim.fn.system(cmd)
 
@@ -43,14 +49,7 @@ M.save_clipboard_image = function()
 	end
 end
 
----Setup the keymap and command for saving clipboard images
----@param _ table
-function M.setup(_)
-	-- Define the command to call the function
-	vim.api.nvim_create_user_command("SaveClipboardImage", M.save_clipboard_image, {})
-
-	-- Set the keymap for the command
-	vim.api.nvim_set_keymap("n", "<leader>ci", ":SaveClipboardImage<CR>", { noremap = true, silent = true })
-end
+-- Define the command to call the function
+vim.api.nvim_create_user_command("SaveClipboardImage", M.save_clipboard_image, {})
 
 return M
