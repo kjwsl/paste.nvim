@@ -73,6 +73,8 @@ end
 --- Setup function to set the keybinding for the command
 ---@param _ table
 function M.setup(_)
+	-- Ensure Python dependencies are installed
+	M.install_python_dependencies()
 	-- Define the command to call the function
 	vim.api.nvim_create_user_command("SaveClipboardImage", M.save_clipboard_image, {})
 	-- Set the keybinding for the command
