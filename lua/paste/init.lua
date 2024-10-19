@@ -49,6 +49,27 @@ M.save_clipboard_image = function()
 	end
 end
 
+-- Function to ensure Python dependencies are installed
+M.install_python_dependencies = function()
+	local lua_dir = debug.getinfo(1, "S").source:sub(2)
+	local lua_abs_dir = vim.fn.fnamemodify(lua_dir, ":p:h")
+	local requirements_file = lua_abs_dir .. "/../../scripts/requirements.txt"
+
+	-- Check if requirements.txt exists before trying to install
+	if vim.fn.filereadable(requirements_file) == 1 then
+		vim.api.nvim_out_write("Installing Python dependencies...\n")
+		local install_cmd = string.format("pip install -r %s", requirements_file)
+		local result = vim.fn.system(install_cmd)
+		if vim.v.shell_error == 0 then
+			vim.api.nvim_out_write("Dependencies installed successfully.\n")
+		else
+			vim.api.nvim_err_writeln("Failed to install dependencies: " .. result)
+		end
+	else
+		vim.api.nvim_err_writeln("requirements.txt not found: " .. requirements_file)
+	end
+end
+
 --- Setup function to set the keybinding for the command
 ---@param _ table
 function M.setup(_)
